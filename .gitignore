@@ -1,0 +1,13 @@
+vendor
+vendor/**
+*node_modules*
+*.log
+.idea
+.gradle
+tmp
+*.golangci_fix
+output
+cypress.env.json
+internal/app/embeds/firebase.json
+web/cypress
+*.env

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ManyDJs PoC</title>
+</head>
+<body>
+    <h1>Hallo Welt</h1>
+
+    <div class="status">
+        Aktueller Status: <span class="info"></span>
+    </div>
+
+    <div class="actions">
+        <button id="startLogin">Start Login</button>
+        <button id="getStatus">Get Status</button>
+    </div>
+<script type="text/javascript">
+    const loginBtn = document.querySelector("#startLogin")
+    const statusBtn = document.querySelector("#getStatus")
+    const infoField = document.querySelector(".status .info");
+    let token = null;
+
+    const params = new Proxy(new URLSearchParams(window.location.search), {
+        get: (searchParams, prop) => searchParams.get(prop),
+    });
+
+    document.addEventListener('readystatechange', function() {
+        if (params.token) {
+            token = params.token
+            console.log('set token!!!!')
+        }
+    })
+
+    statusBtn.addEventListener('click', function () {
+        status()
+    })
+    loginBtn.addEventListener('click', function() {
+        get("/login", function (data) {
+            console.log(data)
+            window.location.href = data.url;
+        })
+    })
+
+    window.setTimeout(function () {
+        status()
+    }, 1000)
+    function status() {
+        get("/me", function (data) {
+            data = JSON.stringify(data)
+            infoField.textContent = data
+            console.log(data)
+
+            // window.setTimeout(function () {
+            //     status()
+            // }, 5000)
+        })
+    }
+
+    function get(url, cb) {
+        const headers = {}
+
+        if (token) {
+            headers['Authorization'] = 'Bearer ' + token
+        }
+
+        fetch("/api" + url, {
+            headers: headers
+        }).then(function (response) {
+            if (response.status !== 200) {
+                cb(response.status)
+                return
+            }
+            response.json().then(function (json) {
+                cb(json)
+            })
+        }).catch(function (err) {
+            db(err)
+        })
+    }
+</script>
+</body>
+</html>
